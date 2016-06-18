@@ -1,0 +1,17 @@
+{
+  "name": "js-alert",
+  "version": "1.0.0",
+  "description": "A simple JavaScript alert manager.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "browser",
+    "javascript",
+    "alert",
+    "popup"
+  ],
+  "author": "jjv360",
+  "license": "ISC"
+}
