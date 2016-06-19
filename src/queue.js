@@ -57,7 +57,7 @@ export default class Queue extends EventSource {
 			this.emit("added", item);
 			
 			// Check if we can activate this one now
-			this.checkActivated();
+			setTimeout(this.checkActivated.bind(this), 1);
 		
 		});
 		
@@ -83,11 +83,16 @@ export default class Queue extends EventSource {
 		// We can activate the next item now
 		this.current = this.items[0];
 		
+		// Create promise resolve response. DO NOT directly pass a thenable, it won't work!
+		var resp = {
+			item: this.current.item
+		}
+		
 		// Resolve promise
-		this.current.activateHandler && this.current.activateHandler(this.current.item);
+		this.current.activateHandler && this.current.activateHandler(resp);
 		
 		// Trigger event
-		this.emit("activated", this.current.item);
+		this.emit("activated", resp);
 		
 	}
 	

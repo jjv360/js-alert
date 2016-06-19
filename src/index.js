@@ -15,7 +15,24 @@ export default class JSAlert extends EventSource {
 		
 		// Create alert
 		var alert = new JSAlert(text, title);
-		alert.addButton(closeText);
+		alert.addButton(closeText, null);
+		
+		// Show it
+		return alert.show();
+		
+	}
+	
+	/** @static Creates and shows a new confirm alert with the specified text */
+	static confirm(text, title, acceptText = "OK", rejectText = "Cancel") {
+		
+		// Check if not in a browser
+		if (typeof window === "undefined")
+			return Promise.resolve(console.log("Alert: " + text));
+		
+		// Create alert
+		var alert = new JSAlert(text, title);
+		alert.addButton(acceptText, true);
+		alert.addButton(rejectText, false);
 		
 		// Show it
 		return alert.show();
@@ -37,7 +54,7 @@ export default class JSAlert extends EventSource {
 	
 	
 	/** Adds a button. Returns a Promise that is called if the button is clicked. */
-	addButton(text, type) {
+	addButton(text, value, type) {
 		
 		// Return promise
 		return new Promise((onSuccess, onFail) => {
@@ -45,6 +62,7 @@ export default class JSAlert extends EventSource {
 			// Add button
 			this.buttons.push({
 				text: text,
+				value: typeof value == "undefined" ? text : value,
 				type: type || (this.buttons.length == 0 ? "default" : "normal"),
 				callback: onSuccess
 			});
@@ -177,6 +195,31 @@ export default class JSAlert extends EventSource {
 			this.elems.text.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 15px; font-weight: normal; color: #000; cursor: default; padding: 2px 20px; ";
 			this.elems.text.innerHTML = this.text;
 			this.elems.window.appendChild(this.elems.text);
+			
+		}
+		
+		// Create buttons if there is one
+		if (this.buttons.length > 0) {
+			
+			this.elems.buttons = document.createElement("div");
+			this.elems.buttons.style.cssText = "display: block; display: flex; justify-content: space-around; align-items: center; text-align: right; border-top: 1px solid #EEE; margin-top: 10px; ";
+			this.elems.window.appendChild(this.elems.buttons);
+			
+			// Add each button
+			this.buttons.forEach((b) => {
+				
+				var btn = document.createElement("div");
+				btn.style.cssText = "display: inline-block; font-family: Helvetica, Arial; font-size: 15px; font-weight: 200; color: #08F; padding: 10px 20px; padding-bottom: 0px; cursor: pointer; ";
+				btn.innerText = b.text;
+				this.elems.buttons.appendChild(btn);
+				
+				// Add button handler
+				this.addTouchHandler(btn, () => {
+					b.callback && b.callback(b.value);
+					this.dismiss(b.value);
+				});
+				
+			});
 			
 		}
 		

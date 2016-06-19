@@ -81,6 +81,32 @@
 	
 	
 	
+
+	<div id='test04' class='button'>Confirm alert</div>
+	<script>
+	
+		// Display a confirm alert
+		document.querySelector("#test04").addEventListener("click", function() {
+		
+			JSAlert.confirm("Are you sure you want to delete this file?").then(function(result) {
+			
+				// Check if pressed yes
+				if (!result)
+					return;
+					
+				// User pressed yes!
+				JSAlert.alert("File deleted!");
+			
+			});
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
 	
 	<!-- Test categories -->
 	<h2>Events</h2>
