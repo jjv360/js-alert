@@ -14,7 +14,7 @@
     "popup"
   ],
   "author": "jjv360",
-  "license": "ISC",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/jjv360/js-alert.git"
