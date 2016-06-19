@@ -3,16 +3,109 @@
 <head>
 	<title>JSAlert tests</title>
 	<script src='dist/jsalert.min.js'></script>
+	<style>
+		.button {
+			display: inline-block;
+			margin: 10px;
+			padding: 10px 20px;
+			border: 1px solid #08F;
+			border-radius: 4px;
+			color: #08F;
+			cursor: pointer;
+			font-family: Helvetica Neue, Helvetica, Arial;
+			font-size: 15px;
+			font-weight: bold;
+		}
+	</style>
 </head>
 <body>
 
 	<!-- Header -->
 	<h1>JSAlert tests</h1>
+	
+	<!-- Test categories -->
+	<h2>Displaying alerts</h2>
+	
+	
+	
 
-	<!-- Alert showing buttons -->
-	<div class='button' onclick="JSAlert.alert('This is an alert!', 'Custom title'); ">
-		Simple alert
-	</div>
+	<div id='test01' class='button'>Simple alert</div>
+	<script>
+	
+		// Display a simple alert
+		document.querySelector("#test01").addEventListener("click", function() {
+		
+			JSAlert.alert("A simple alert.");
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
+
+	<div id='test02' class='button'>Alert with title</div>
+	<script>
+	
+		// Display an alert with a custom title
+		document.querySelector("#test02").addEventListener("click", function() {
+		
+			JSAlert.alert("The content goes here.", "My custom alert title");
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
+
+	<div id='test03' class='button'>Queued alerts</div>
+	<script>
+	
+		// Display 3 alerts in a row. Alerts are automatically queued.
+		document.querySelector("#test03").addEventListener("click", function() {
+		
+			JSAlert.alert("This is the first alert.");
+			JSAlert.alert("This is the second alert.");
+			JSAlert.alert("This is the third and final alert.");
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
+	
+	<!-- Test categories -->
+	<h2>Events</h2>
+	
+	
+	
+
+	<div id='test-events01' class='button'>Dismiss event</div>
+	<script>
+	
+		// Listen for the event.
+		document.querySelector("#test-events01").addEventListener("click", function() {
+		
+			JSAlert.alert("This alert has an event listener!").then(function() {
+				document.querySelector("#test-events01").innerText = "Alert dismissed!";
+			});
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
 
 </body>
 </html>

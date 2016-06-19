@@ -21,6 +21,7 @@ var babelify = require('babelify');
 var uglify = require("gulp-uglify");
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
+var gutil = require('gulp-util');
 
 
 // Gulp default action, build the project
@@ -41,6 +42,19 @@ gulp.task("build", function() {
 	
 	// Create a single bundle file
 	.bundle()
+	
+	// Catch errors
+	.on('error', function(e) {
+		
+		// Show the error at the end of the log, easier to notice it that way
+		setTimeout(function() {
+			gutil.log(gutil.colors.red("ERROR: "), e.message);
+		}, 1);
+		
+		// End the stream
+		this.emit("end");
+		
+    })
 	
 	// Set output name
 	.pipe(source('jsalert.min.js'))
