@@ -6,6 +6,10 @@ export default class JSAlert {
 	/** @static Creates and shows a new alert with the specified text */
 	static alert(text, title, closeText = "Close") {
 		
+		// Check if not in a browser
+		if (typeof window === "undefined")
+			return Promise.resolve(console.log(text));
+		
 		// Create alert
 		var alert = new JSAlert();
 		alert.text = text;

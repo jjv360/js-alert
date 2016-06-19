@@ -62,6 +62,15 @@ gulp.task("build", function() {
 	
 });
 
+// Gulp test action. This builds the project, and then tests it by importing it and checking if it can be created.
+gulp.task("test", ["build"], function() {
+	
+	// Create an alert to test. If not in a browser, this should just output a message to the console.
+	var JSAlert = require("./dist/jsalert.min.js");
+	JSAlert.alert("Test successful!");
+	
+});
+
 // Gulp watch action, watch for changes and rebuild the project each time
 gulp.task("watch", ["default"], function() {
 
