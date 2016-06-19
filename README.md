@@ -29,9 +29,7 @@ JSAlert.alert("This one has an event listener!").then(function() {
 });
 
 // Create an alert with custom buttons
-var alert = new JSAlert();
-alert.title = "My title";
-alert.text = "My text";
+var alert = new JSAlert("My text", "My title");
 alert.addButton("Yes").then(function() {
 	console.log("Alert button Yes pressed");
 });

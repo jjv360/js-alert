@@ -14,9 +14,7 @@ export default class JSAlert extends EventSource {
 			return Promise.resolve(console.log("Alert: " + text));
 		
 		// Create alert
-		var alert = new JSAlert();
-		alert.title = title;
-		alert.text = text;
+		var alert = new JSAlert(text, title);
 		alert.addButton(closeText);
 		
 		// Show it
@@ -25,13 +23,13 @@ export default class JSAlert extends EventSource {
 	}
 	
 	/** Constructor */
-	constructor() {
+	constructor(text = "", title = "") {
 		super();
 		
 		// Setup vars
 		this.elems 		= {};
-		this.title		= "";
-		this.text		= "";
+		this.title		= title;
+		this.text		= text;
 		this.buttons	= [];
 		this.result		= false;
 		
