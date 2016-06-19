@@ -56,7 +56,7 @@ export default class JSAlert extends EventSource {
 	}
 	
 	
-	/** Shows the alert. Returns a Promise which is resolved when the alert closes. */
+	/** Shows the alert. */
 	show() {
 		
 		// TODO: Check which queue to use
@@ -75,9 +75,15 @@ export default class JSAlert extends EventSource {
 			
 		});
 		
-		// Return a promise resolved when the popup closes
-		return this.when("closed");
+		// Return the alert
+		return this;
 		
+	}
+	
+	
+	/** A then function, to allow chaining with Promises */
+	then(func) {
+		return this.when("closed").then(func);
 	}
 	
 	
@@ -92,7 +98,17 @@ export default class JSAlert extends EventSource {
 		
 		// Trigger event
 		this.emit("closed", result);
+		return this;
 		
+	}
+	
+	
+	/** Dismisses the alert some time in the future */
+	dismissIn(time) {
+		
+		setTimeout(this.dismiss.bind(this), time);
+		return this;
+	
 	}
 	
 	
