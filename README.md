@@ -28,6 +28,18 @@ JSAlert.alert("This one has an event listener!").then(function() {
 	console.log("Alert dismissed!");
 });
 
+// Show a confirm alert
+JSAlert.confirm("Are you sure you want to delete this file?").then(function(result) {
+	
+	// Check if pressed yes
+	if (!result)
+		return;
+	
+	// User pressed yes!
+	JSAlert.alert("File deleted!");
+
+});
+
 // Create an alert with custom buttons
 var alert = new JSAlert("My text", "My title");
 alert.addButton("Yes").then(function() {
