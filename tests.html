@@ -107,6 +107,32 @@
 	
 	
 	
+
+	<div id='test05' class='button'>Prompt</div>
+	<script>
+	
+		// Display a confirm alert
+		document.querySelector("#test05").addEventListener("click", function() {
+		
+			JSAlert.prompt("Enter your name:", "John Smith").then(function(result) {
+			
+				// Check if successful
+				if (!result)
+					return;
+					
+				// User entered their name
+				JSAlert.alert("Hello <b>" + result + "</b>!");
+			
+			});
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
 	
 	<!-- Test categories -->
 	<h2>Events</h2>
@@ -123,6 +149,89 @@
 			JSAlert.alert("This alert has an event listener!").then(function() {
 				document.querySelector("#test-events01").innerText = "Alert dismissed!";
 			});
+		
+		});
+	
+	</script>
+	
+	
+	
+	
+	
+	
+	<!-- Test categories -->
+	<h2>Icons</h2>
+	
+	
+	
+
+	<div id='test-icons01' class='button'>Information icon</div>
+	<script>
+	
+		// Show with icon
+		document.querySelector("#test-icons01").addEventListener("click", function() {
+		
+			JSAlert.alert("<code>JSAlert.Icons.Information</code>", null, JSAlert.Icons.Information);
+		
+		});
+	
+	</script>
+
+	<div id='test-icons02' class='button'>Warning icon</div>
+	<script>
+	
+		// Show with icon
+		document.querySelector("#test-icons02").addEventListener("click", function() {
+		
+			JSAlert.alert("<code>JSAlert.Icons.Warning</code>", null, JSAlert.Icons.Warning);
+		
+		});
+	
+	</script>
+
+	<div id='test-icons03' class='button'>Question icon</div>
+	<script>
+	
+		// Show with icon
+		document.querySelector("#test-icons03").addEventListener("click", function() {
+		
+			JSAlert.alert("<code>JSAlert.Icons.Question</code>", null, JSAlert.Icons.Question);
+		
+		});
+	
+	</script>
+
+	<div id='test-icons04' class='button'>Success icon</div>
+	<script>
+	
+		// Show with icon
+		document.querySelector("#test-icons04").addEventListener("click", function() {
+		
+			JSAlert.alert("<code>JSAlert.Icons.Success</code>", null, JSAlert.Icons.Success);
+		
+		});
+	
+	</script>
+
+	<div id='test-icons05' class='button'>Failed icon</div>
+	<script>
+	
+		// Show with icon
+		document.querySelector("#test-icons05").addEventListener("click", function() {
+		
+			JSAlert.alert("<code>JSAlert.Icons.Failed</code>", null, JSAlert.Icons.Failed);
+		
+		});
+	
+	</script>
+
+	<div id='test-icons06' class='button'>Deleted icon</div>
+	<script>
+	
+		// Show with icon
+		document.querySelector("#test-icons06").addEventListener("click", function() {
+		
+			JSAlert.alert("<code>JSAlert.Icons.Deleted</code>", null, JSAlert.Icons.Deleted);
 		
 		});
 	

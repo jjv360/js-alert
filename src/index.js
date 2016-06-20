@@ -7,7 +7,7 @@ import EventSource from './event-source.js'
 export default class JSAlert extends EventSource {
 	
 	/** @static Creates and shows a new alert with the specified text */
-	static alert(text, title, closeText = "Close") {
+	static alert(text, title, icon, closeText = "Close") {
 		
 		// Check if not in a browser
 		if (typeof window === "undefined")
@@ -17,13 +17,17 @@ export default class JSAlert extends EventSource {
 		var alert = new JSAlert(text, title);
 		alert.addButton(closeText, null);
 		
+		// Set icon
+		if (icon !== false)
+			alert.setIcon(icon || JSAlert.Icons.Information);
+		
 		// Show it
 		return alert.show();
 		
 	}
 	
 	/** @static Creates and shows a new confirm alert with the specified text */
-	static confirm(text, title, acceptText = "OK", rejectText = "Cancel") {
+	static confirm(text, title, icon, acceptText = "OK", rejectText = "Cancel") {
 		
 		// Check if not in a browser
 		if (typeof window === "undefined")
@@ -34,8 +38,44 @@ export default class JSAlert extends EventSource {
 		alert.addButton(acceptText, true);
 		alert.addButton(rejectText, false);
 		
+		// Set icon
+		if (icon !== false)
+			alert.setIcon(icon || JSAlert.Icons.Question);
+		
 		// Show it
 		return alert.show();
+		
+	}
+	
+	/** @static Creates and shows a new prompt, an alert with a single text field. */
+	static prompt(text, defaultText, placeholderText, title, icon, acceptText = "OK", rejectText = "Cancel") {
+		
+		// Check if not in a browser
+		if (typeof window === "undefined")
+			return Promise.resolve(console.log("Alert: " + text));
+		
+		// Create alert
+		var alert = new JSAlert(text, title);
+		alert.addButton(acceptText, true, "default");
+		alert.addButton(rejectText, false, "cancel");
+		
+		// Set icon
+		if (icon !== false)
+			alert.setIcon(icon || JSAlert.Icons.Question);
+		
+		// Add text field
+		alert.addTextField(defaultText, null, placeholderText);
+		
+		// Show it
+		return alert.show().then((result) => {
+			
+			// Check if cancelled
+			if (alert.cancelled)
+				return null;
+			else
+				return alert.getTextFieldValue(0);
+			
+		});
 		
 	}
 	
@@ -48,8 +88,17 @@ export default class JSAlert extends EventSource {
 		this.title		= title;
 		this.text		= text;
 		this.buttons	= [];
+		this.textFields	= [];
 		this.result		= false;
+		this.iconURL	= null;
+		this.cancelled	= false;
 		
+	}
+	
+	
+	/** Sets an icon for the alert. `icon` is either a URL or one of `JSAlert.Icons`. */
+	setIcon(icon) {
+		this.iconURL = icon;
 	}
 	
 	
@@ -72,22 +121,47 @@ export default class JSAlert extends EventSource {
 	}
 	
 	
+	/** Adds a text field. Returns a Promise that will be called when the dialog is dismissed, but not cancelled. */
+	addTextField(value, type, placeholderText)  {
+		
+		// Add text field
+		this.textFields.push({
+			value: value || "",
+			type: type || "text",
+			placeholder: placeholderText || ""
+		});
+		
+	}
+	
+	
+	/** Gets a text field's value */
+	getTextFieldValue(index) {
+		
+		// Get text field info
+		var info = this.textFields[index];
+		
+		// Return the value
+		return (info.elem ? info.elem.value : info.value);
+		
+	}
+	
+	
 	/** Shows the alert. */
 	show() {
 		
-		// TODO: Check which queue to use
-		var queue = JSAlert.popupQueue;
-		
-		// Add to show queue
-		queue.add(this).then(() => {
+		// Add to the queue
+		JSAlert.popupQueue.add(this).then(() => {
 			
 			// Add close listener, to remove us from the queue
 			this.when("closed").then(() => {
-				queue.remove(this);
+				JSAlert.popupQueue.remove(this);
 			});
 			
 			// Show us
 			this._show();
+			
+			// Notify that we have been shown
+			this.emit("opened");
 			
 		});
 		
@@ -108,12 +182,62 @@ export default class JSAlert extends EventSource {
 		
 		// Store result
 		this.result = result;
+		this.cancelled = (typeof result == "undefined");
 		
 		// Remove elements
 		this.removeElements();
 		
-		// Trigger event
-		this.emit("closed", result);
+		// Remove global keyboard listener
+		window.removeEventListener("keydown", this);
+		
+		// Check if this was the result of a keyboard enter
+		if (result == "enter-pressed") {
+			
+			// Find the first default button and use that value instead
+			for (var i = 0 ; i < this.buttons.length ; i++) {
+				if (this.buttons[i].type == "default") {
+					
+					// Use this button's value
+					this.result = this.buttons[i].value;
+					
+					// Trigger the button's callback
+					this.buttons[i].callback && this.buttons[i].callback(this.result);
+					break;
+					
+				}
+			}
+			
+		}
+		
+		// Check if this was the result of a keyboard escape
+		else if (result == "escape-pressed") {
+			
+			// Find the first default button and use that value instead
+			this.cancelled = true;
+			this.result = null;
+			for (var i = 0 ; i < this.buttons.length ; i++) {
+				if (this.buttons[i].type == "cancel") {
+					
+					// Use this button's value
+					this.result = this.buttons[i].value;
+					
+					// Trigger the button's callback
+					this.buttons[i].callback && this.buttons[i].callback(this.result);
+					break;
+					
+				}
+			}
+			
+		}
+		
+		// Trigger cancel-specific event
+		if (this.cancelled)
+			this.emit("cancelled", this.result);
+		else
+			this.emit("complete", this.result);
+		
+		// Trigger closed event
+		this.emit("closed", this.result);
 		return this;
 		
 	}
@@ -135,6 +259,9 @@ export default class JSAlert extends EventSource {
 		this.createBackground();
 		this.createPopup();
 		
+		// Add global keyboard listener
+		window.addEventListener("keydown", this);
+		
 	}
 	
 	
@@ -151,7 +278,7 @@ export default class JSAlert extends EventSource {
 		// Do animation
 		setTimeout(() => {
 			this.elems.background.style.opacity = 1;
-		});
+		}, 1);
 		
 	}
 	
@@ -161,6 +288,7 @@ export default class JSAlert extends EventSource {
 		
 		// Create container element
 		this.elems.container = document.createElement("div");
+		this.elems.container.focusable = true;
 		this.elems.container.style.cssText = "position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 10001; display: flex; justify-content: center; align-items: center; opacity: 0; transform: translateY(-40px); transition: opacity 0.15s, transform 0.15s; ";
 		document.body.appendChild(this.elems.container);
 		
@@ -168,15 +296,25 @@ export default class JSAlert extends EventSource {
 		setTimeout(() => {
 			this.elems.container.style.opacity = 1;
 			this.elems.container.style.transform = "translateY(0px)";
-		});
+		}, 1);
 		
 		// Add dismiss handler
 		this.addTouchHandler(this.elems.container, () => this.dismiss() );
 		
 		// Create window
 		this.elems.window = document.createElement("div");
-		this.elems.window.style.cssText = "position: relative; background-color: rgba(255, 255, 255, 0.95); box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25); border-radius: 5px; padding: 10px; min-width: 50px; min-height: 10px; max-width: 50%; max-height: 90%; ";
+		this.elems.window.style.cssText = "position: relative; background-color: rgba(255, 255, 255, 0.95); box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25); border-radius: 5px; padding: 10px; min-width: 50px; min-height: 10px; max-width: 50%; max-height: 90%; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); ";
 		this.elems.container.appendChild(this.elems.window);
+		
+		// Create icon if there is one
+		if (this.iconURL) {
+			
+			this.elems.icon = document.createElement("img");
+			this.elems.icon.style.cssText = "display: block; margin: auto; max-height: 40px; text-align: center; font-family: Helvetica, Arial; font-size: 17px; font-weight: bold; color: #000; cursor: default; padding: 10px 0px; ";
+			this.elems.icon.src = this.iconURL;
+			this.elems.window.appendChild(this.elems.icon);
+			
+		}
 		
 		// Create title if there is one
 		if (this.title) {
@@ -198,7 +336,53 @@ export default class JSAlert extends EventSource {
 			
 		}
 		
-		// Create buttons if there is one
+		// Create text fields if there are any
+		if (this.textFields.length > 0) {
+			
+			this.elems.textFields = document.createElement("div");
+			this.elems.textFields.style.cssText = "display: block; ";
+			this.elems.window.appendChild(this.elems.textFields);
+			
+			// Add each button
+			this.textFields.forEach((b, idx) => {
+				
+				b.elem = document.createElement("input");
+				b.elem.style.cssText = "display: block; width: 90%; min-width: 250px; padding: 5px 0px; margin: 10px auto; background-color: #FFF; border: 1px solid #EEE; border-radius: 5px; text-align: center; font-family: Helvetica, Arial; font-size: 15px; color: #222; ";
+				b.elem.value = b.value;
+				b.elem.placeholder = b.placeholder;
+				b.elem.type = b.type;
+				this.elems.textFields.appendChild(b.elem);
+				
+				// Add keyboard listener
+				b.elem.addEventListener("keypress", (e) => {
+					
+					// Ignore if not enter
+					if (e.keyCode != 13)
+						return;
+					
+					// Check if this is the last input field
+					if (idx+1 >= this.textFields.length) {
+						
+						// Done
+						this.dismiss("enter-pressed");
+						
+					} else {
+						
+						// Just select the next field
+						this.textFields[idx+1].elem.focus();
+						
+					}
+					
+				});
+				
+			});
+			
+			// Focus on first field
+			this.textFields[0].elem.focus();
+			
+		}
+		
+		// Create buttons if there are any
 		if (this.buttons.length > 0) {
 			
 			this.elems.buttons = document.createElement("div");
@@ -253,8 +437,9 @@ export default class JSAlert extends EventSource {
 		// Create handler
 		var handler = (e) => {
 			
-			// Stop default browser action
-			e.preventDefault();
+			// Stop default browser action, unless this is an input field
+			if (e.target.nodeName.toLowerCase() != "input")
+				e.preventDefault();
 			
 			// Check if our element was pressed, not a child element
 			if (e.target != elem)
@@ -270,15 +455,41 @@ export default class JSAlert extends EventSource {
 		
 	}
 	
+	/** @private Called by the browser when a keyboard event is fired on the whole window */
+	handleEvent(e) {
+		
+		// Check if enter was pressed
+		if (e.keyCode == 13) {
+			
+			// Done
+			this.dismiss("enter-pressed");
+			return;
+			
+		}
+		
+		// Check if escape was pressed
+		if (e.keyCode == 27) {
+			
+			// Done
+			this.dismiss("escape-pressed");
+			return;
+			
+		}
+		
+	}
+	
 }
+
+
+
+// Include theme's icons
+import icons from "./icons.js";
+JSAlert.Icons = icons;
 
 
 	
 // The default popup queue
 JSAlert.popupQueue = new Queue();
-
-// The toast queue
-JSAlert.toastQueue = new Queue();
 
 
 // In case anyone wants to use the classes of this project on their own...
