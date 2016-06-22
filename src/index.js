@@ -408,7 +408,7 @@ export default class JSAlert extends EventSource {
 	removeElements() {
 		
 		// Don't do anything if not loaded
-		if (!this.elems && !this.elems.container)
+		if (!this.elems || !this.elems.container)
 			return;
 		
 		// Animate background away
