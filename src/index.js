@@ -92,6 +92,7 @@ export default class JSAlert extends EventSource {
 		this.result		= false;
 		this.iconURL	= null;
 		this.cancelled	= false;
+		this.dismissed	= false;
 		
 	}
 	
@@ -152,11 +153,6 @@ export default class JSAlert extends EventSource {
 		// Add to the queue
 		JSAlert.popupQueue.add(this).then(() => {
 			
-			// Add close listener, to remove us from the queue
-			this.when("closed").then(() => {
-				JSAlert.popupQueue.remove(this);
-			});
-			
 			// Show us
 			this._show();
 			
@@ -180,9 +176,17 @@ export default class JSAlert extends EventSource {
 	/** Dismisses the alert. */
 	dismiss(result) {
 		
+		// Do nothing if dismissed already
+		if (this.dismissed) return;
+		this.dismissed = true;
+		
+		// Remove us from the queue
+		JSAlert.popupQueue.remove(this);
+		
 		// Store result
 		this.result = result;
-		this.cancelled = (typeof result == "undefined");
+		if (typeof result == "undefined")
+			this.cancelled = true;
 		
 		// Remove elements
 		this.removeElements();
@@ -277,8 +281,9 @@ export default class JSAlert extends EventSource {
 		
 		// Do animation
 		setTimeout(() => {
+			this.elems.background.offsetWidth;
 			this.elems.background.style.opacity = 1;
-		}, 1);
+		}, 0);
 		
 	}
 	
@@ -294,9 +299,10 @@ export default class JSAlert extends EventSource {
 		
 		// Do animation
 		setTimeout(() => {
+			this.elems.container.offsetWidth;
 			this.elems.container.style.opacity = 1;
 			this.elems.container.style.transform = "translateY(0px)";
-		}, 1);
+		}, 0);
 		
 		// Add dismiss handler
 		this.addTouchHandler(this.elems.container, () => this.dismiss() );
@@ -400,6 +406,7 @@ export default class JSAlert extends EventSource {
 				// Add button handler
 				this.addTouchHandler(btn, () => {
 					b.callback && b.callback(b.value);
+					if (b.type == "cancel") this.cancelled = true;
 					this.dismiss(b.value);
 				});
 				
@@ -412,6 +419,10 @@ export default class JSAlert extends EventSource {
 	
 	/** @private Called to remove all elements from the screen */
 	removeElements() {
+		
+		// Don't do anything if not loaded
+		if (!this.elems && !this.elems.container)
+			return;
 		
 		// Animate background away
 		this.elems.background.style.opacity = 0;

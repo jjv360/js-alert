@@ -112,7 +112,7 @@ export default class Queue extends EventSource {
 			this.current = null;
 		
 		// Possibly activate the next item
-		this.checkActivated();
+		setTimeout(this.checkActivated.bind(this), 1);
 		
 	}
 	
