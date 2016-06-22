@@ -62,3 +62,14 @@ alert.addButton("No").then(function() {
 });
 alert.show();
 ```
+
+
+## Building the library
+
+To create a minified build of this library, run this:
+
+```
+npm run build
+```
+
+A built version of the library will be saved to the dist folder.

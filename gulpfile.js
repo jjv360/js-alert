@@ -3,13 +3,12 @@
  *
  *	Usage:
  *
- *		npm install
- *		npm run gulp
+ *		npm run build
  *
  *
  *	To watch for changes and rebuild:
  *
- *		npm run gulp watch
+ *		npm run watch
  *
  */
  
@@ -22,13 +21,25 @@ var uglify = require("gulp-uglify");
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var gutil = require('gulp-util');
-
+var babel = require('gulp-babel');
+var del = require('del');
 
 // Gulp default action, build the project
 gulp.task("default", ["build"]);
 
+// Gulp clean action, deletes the generated code folders
+gulp.task("clean", function() {
+	
+	// Delete folders
+	return del([
+		"lib",
+		"dist"
+	]);
+	
+});
+
 // Gulp build action, build the JavaScript and puts the compiled file into ./dist
-gulp.task("build", function() {
+gulp.task("build", ["clean"], function() {
 	
 	// Browserify it
 	return browserify({
@@ -93,5 +104,25 @@ gulp.task("watch", ["default"], function() {
 		console.log("File " + event.type + ": " + event.path);
 	});
 	console.log("Watching for changed files...");
+	
+});
+
+// Gulp task started before publishing to NPM.
+gulp.task("prepublish", ["generate-lib", "build"]);
+
+// Gulp task to generate the lib files. The lib is basically an es5 version of the source. The lib folder gets uploaded to NPM. */
+gulp.task("generate-lib", ["clean"], function() {
+	
+	// Get source files
+	return gulp.src("src/**/*")
+	
+	// De-ES6ify with babel
+	.pipe(babel({
+		presets: ['es2015'],
+		plugins: ['add-module-exports']
+	}))
+	
+	// Output to lib folder
+	.pipe(gulp.dest('lib/'));
 	
 });
