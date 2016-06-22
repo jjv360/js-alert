@@ -4,7 +4,7 @@
   "description": "A simple JavaScript popup alert manager.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm install && gulp test",
     "build": "npm install && gulp",
     "watch": "npm install && gulp watch",
     "prepublish": "gulp prepublish"
