@@ -463,6 +463,7 @@ export default class JSAlert extends EventSource {
 			
 			// Done
 			this.dismiss("enter-pressed");
+			e.preventDefault();
 			return;
 			
 		}
@@ -472,6 +473,7 @@ export default class JSAlert extends EventSource {
 			
 			// Done
 			this.dismiss("escape-pressed");
+			e.preventDefault();
 			return;
 			
 		}
