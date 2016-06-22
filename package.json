@@ -1,6 +1,6 @@
 {
   "name": "js-alert",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple JavaScript popup alert manager.",
   "main": "lib/index.js",
   "scripts": {
@@ -16,7 +16,8 @@
     "browser",
     "javascript",
     "alert",
-    "popup"
+    "popup",
+	"modal"
   ],
   "author": "jjv360",
   "license": "MIT",
