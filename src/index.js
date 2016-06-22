@@ -79,6 +79,22 @@ export default class JSAlert extends EventSource {
 		
 	}
 	
+	/** @static Creates and shows a loader, which is just an alert with no buttons. */
+	static loader(text, cancelable) {
+		
+		// Check if not in a browser
+		if (typeof window === "undefined")
+			return Promise.resolve(console.log("Loading: " + text));
+		
+		// Create alert
+		var alert = new JSAlert(text);
+		alert.cancelable = cancelable;
+		
+		// Show it
+		return alert.show();
+		
+	}
+	
 	/** Constructor */
 	constructor(text = "", title = "") {
 		super();
@@ -91,6 +107,7 @@ export default class JSAlert extends EventSource {
 		this.textFields	= [];
 		this.result		= false;
 		this.iconURL	= null;
+		this.cancelable = true;
 		this.cancelled	= false;
 		this.dismissed	= false;
 		
@@ -194,46 +211,6 @@ export default class JSAlert extends EventSource {
 		// Remove global keyboard listener
 		window.removeEventListener("keydown", this);
 		
-		// Check if this was the result of a keyboard enter
-		if (result == "enter-pressed") {
-			
-			// Find the first default button and use that value instead
-			for (var i = 0 ; i < this.buttons.length ; i++) {
-				if (this.buttons[i].type == "default") {
-					
-					// Use this button's value
-					this.result = this.buttons[i].value;
-					
-					// Trigger the button's callback
-					this.buttons[i].callback && this.buttons[i].callback(this.result);
-					break;
-					
-				}
-			}
-			
-		}
-		
-		// Check if this was the result of a keyboard escape
-		else if (result == "escape-pressed") {
-			
-			// Find the first default button and use that value instead
-			this.cancelled = true;
-			this.result = null;
-			for (var i = 0 ; i < this.buttons.length ; i++) {
-				if (this.buttons[i].type == "cancel") {
-					
-					// Use this button's value
-					this.result = this.buttons[i].value;
-					
-					// Trigger the button's callback
-					this.buttons[i].callback && this.buttons[i].callback(this.result);
-					break;
-					
-				}
-			}
-			
-		}
-		
 		// Trigger cancel-specific event
 		if (this.cancelled)
 			this.emit("cancelled", this.result);
@@ -305,7 +282,17 @@ export default class JSAlert extends EventSource {
 		}, 0);
 		
 		// Add dismiss handler
-		this.addTouchHandler(this.elems.container, () => this.dismiss() );
+		this.addTouchHandler(this.elems.container, () => {
+			
+			// Check if cancelable
+			if (!this.cancelable)
+				return;
+			
+			// Dismiss
+			this.cancelled = true;
+			this.dismiss();
+			
+		});
 		
 		// Create window
 		this.elems.window = document.createElement("div");
@@ -472,9 +459,24 @@ export default class JSAlert extends EventSource {
 		// Check if enter was pressed
 		if (e.keyCode == 13) {
 			
-			// Done
-			this.dismiss("enter-pressed");
-			e.preventDefault();
+			// Find the first default button and use that value instead
+			for (var i = 0 ; i < this.buttons.length ; i++) {
+				if (this.buttons[i].type == "default") {
+					
+					// Use this button's value
+					this.dismiss(this.buttons[i].value);
+					e.preventDefault();
+					
+					// Trigger the button's callback
+					this.buttons[i].callback && this.buttons[i].callback(this.result);
+					return;
+					
+				}
+			}
+			
+			// No default button found, cancel
+			this.cancelled = true;
+			this.dismiss();
 			return;
 			
 		}
@@ -482,9 +484,30 @@ export default class JSAlert extends EventSource {
 		// Check if escape was pressed
 		if (e.keyCode == 27) {
 			
-			// Done
-			this.dismiss("escape-pressed");
-			e.preventDefault();
+			// Check if cancelable
+			if (!this.cancelable)
+				return;
+			
+			// Find the first default button and use that value instead
+			this.cancelled = true;
+			this.result = null;
+			for (var i = 0 ; i < this.buttons.length ; i++) {
+				if (this.buttons[i].type == "cancel") {
+					
+					// Use this button's value
+					this.dismiss(this.buttons[i].value);
+					e.preventDefault();
+					
+					// Trigger the button's callback
+					this.buttons[i].callback && this.buttons[i].callback(this.result);
+					return;
+					
+				}
+			}
+			
+			// No cancel button found, just cancel
+			this.cancelled = true;
+			this.dismiss();
 			return;
 			
 		}
