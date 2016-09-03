@@ -9,7 +9,7 @@ A simple JavaScript alert manager.
 The simplest way to use from the browser is to include the minified script:
 
 ``` html
-<script src="https://npmcdn.com/js-alert/dist/jsalert.min.js"></script>
+<script src="https://unpkg.com/js-alert/dist/jsalert.min.js"></script>
 ```
 
 
