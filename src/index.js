@@ -110,6 +110,9 @@ export default class JSAlert extends EventSource {
 		this.cancelable = true;
 		this.cancelled	= false;
 		this.dismissed	= false;
+		this.maxWidth = "50%";
+		this.maxHeight = "90%";
+		this.verticalButtons = false;
 		
 	}
 	
@@ -121,6 +124,35 @@ export default class JSAlert extends EventSource {
 	
 	
 	/** Adds a button. Returns a Promise that is called if the button is clicked. */
+	addButton(text, value, type) {
+		
+		// Return promise
+		return new Promise((onSuccess, onFail) => {
+			
+			// Add button
+			this.buttons.push({
+				text: text,
+				value: typeof value == "undefined" ? text : value,
+				type: type || (this.buttons.length == 0 ? "default" : "normal"),
+				callback: onSuccess
+			});
+			
+		});
+		
+	}
+
+	setWidth(width) {
+		this.maxWidth = width;	
+	}
+
+	setHeight(height) {
+		this.maxHeight = height;	
+	}
+
+	makeButtonsVertical() {
+		this.verticalButtons = true;	
+	}
+
 	addButton(text, value, type) {
 		
 		// Return promise
@@ -296,7 +328,7 @@ export default class JSAlert extends EventSource {
 		
 		// Create window
 		this.elems.window = document.createElement("div");
-		this.elems.window.style.cssText = "position: relative; background-color: rgba(255, 255, 255, 0.95); box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25); border-radius: 5px; padding: 10px; min-width: 50px; min-height: 10px; max-width: 50%; max-height: 90%; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); ";
+		this.elems.window.style.cssText = `position: relative; background-color: rgba(255, 255, 255, 0.95); box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.25); border-radius: 10px; padding: 10px; min-width: 50px; min-height: 10px; max-width: ${this.maxWidth}; max-height: ${this.maxHeight}; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); `;
 		this.elems.container.appendChild(this.elems.window);
 		
 		// Create icon if there is one
@@ -313,7 +345,7 @@ export default class JSAlert extends EventSource {
 		if (this.title) {
 			
 			this.elems.title = document.createElement("div");
-			this.elems.title.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 17px; font-weight: bold; color: #000; cursor: default; padding: 2px 20px; ";
+			this.elems.title.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 17px; font-weight: bold; color: #000; cursor: default; padding: 5px 20px; ";
 			this.elems.title.innerHTML = this.title;
 			this.elems.window.appendChild(this.elems.title);
 			
@@ -323,7 +355,7 @@ export default class JSAlert extends EventSource {
 		if (this.text) {
 			
 			this.elems.text = document.createElement("div");
-			this.elems.text.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 15px; font-weight: normal; color: #000; cursor: default; padding: 2px 20px; ";
+			this.elems.text.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 15px; font-weight: normal; color: #000; cursor: default; padding: 10px 20px; ";
 			this.elems.text.innerHTML = this.text;
 			this.elems.window.appendChild(this.elems.text);
 			
@@ -333,7 +365,7 @@ export default class JSAlert extends EventSource {
 		if (this.textFields.length > 0) {
 			
 			this.elems.textFields = document.createElement("div");
-			this.elems.textFields.style.cssText = "display: block; ";
+			this.elems.textFields.style.cssText = "display: block; }";
 			this.elems.window.appendChild(this.elems.textFields);
 			
 			// Add each button
@@ -379,14 +411,14 @@ export default class JSAlert extends EventSource {
 		if (this.buttons.length > 0) {
 			
 			this.elems.buttons = document.createElement("div");
-			this.elems.buttons.style.cssText = "display: block; display: flex; justify-content: space-around; align-items: center; text-align: right; border-top: 1px solid #EEE; margin-top: 10px; ";
+			this.elems.buttons.style.cssText = `display: block; display: flex; justify-content: space-around; align-items: center; flex-direction: ${this.verticalButtons ? 'column' : 'row'}; text-align: right; border-top: 1px solid #EEE; margin-top: 10px; `;
 			this.elems.window.appendChild(this.elems.buttons);
 			
 			// Add each button
 			this.buttons.forEach((b) => {
 				
 				var btn = document.createElement("div");
-				btn.style.cssText = "display: inline-block; font-family: Helvetica, Arial; font-size: 15px; font-weight: 200; color: #08F; padding: 10px 20px; padding-bottom: 0px; cursor: pointer; ";
+				btn.style.cssText = "display: inline-block; font-family: Helvetica, Arial; font-size: 15px; font-weight: 200; color: #08F; padding: 10px 20px; cursor: pointer; ";
 				btn.innerText = b.text;
 				this.elems.buttons.appendChild(btn);
 				
