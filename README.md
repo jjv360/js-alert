@@ -1,3 +1,4 @@
+![](https://img.shields.io/badge/status-ready-brightgreen.svg)
 [![Build Status](https://travis-ci.org/jjv360/js-alert.svg?branch=master)](https://travis-ci.org/jjv360/js-alert)
 
 # js-alert
