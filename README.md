@@ -5,33 +5,17 @@
 A simple JavaScript alert manager.
 
 
-## Use from the browser
-
-The simplest way to use from the browser is to include the minified script:
-
-``` html
-<script src="https://unpkg.com/js-alert/dist/jsalert.min.js"></script>
-```
-
-
-## Use from Node
-
-To use this library in your node web app, first install the dependency:
-
-```
-npm install --save js-alert
-```
-
-Then you can use it in your project:
-
-``` javascript
-var JSAlert = require("js-alert");
-```
-
-
 ## Usage examples
 
-See all tests [here](https://rawgit.com/jjv360/js-alert/master/tests.html).
+``` javascript
+// Import as an ESM module
+import JSAlert from 'js-alert'
+```
+
+``` html
+<!-- ... or include directly in your HTML code -->
+<script src="https://unpkg.com/js-alert/dist/jsalert.min.js"></script>
+```
 
 ``` javascript
 // Show a plain alert
@@ -88,13 +72,4 @@ alert.addButton("No").then(function() {
 alert.show();
 ```
 
-
-## Building the library
-
-To create a minified build of this library, run this:
-
-```
-npm run build
-```
-
-A built version of the library will be saved to the dist folder.
+See all tests [here](https://rawgit.com/jjv360/js-alert/master/tests.html).

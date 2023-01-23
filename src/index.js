@@ -3,8 +3,15 @@
 
 import Queue from './queue.js'
 import EventSource from './event-source.js'
+import PkgInfo from '../package.json'
+import sanitize from 'light-sanitize-html'
 
 export default class JSAlert extends EventSource {
+
+	/** Library version */
+	static get version() {
+		return PkgInfo.version
+	}
 	
 	/** @static Creates and shows a new alert with the specified text */
 	static alert(text, title, icon, closeText = "Close") {
@@ -314,7 +321,7 @@ export default class JSAlert extends EventSource {
 			
 			this.elems.title = document.createElement("div");
 			this.elems.title.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 17px; font-weight: bold; color: #000; cursor: default; padding: 2px 20px; ";
-			this.elems.title.innerHTML = this.title;
+			this.elems.title.innerHTML = sanitize(this.title)
 			this.elems.window.appendChild(this.elems.title);
 			
 		}
@@ -324,7 +331,7 @@ export default class JSAlert extends EventSource {
 			
 			this.elems.text = document.createElement("div");
 			this.elems.text.style.cssText = "display: block; text-align: center; font-family: Helvetica, Arial; font-size: 15px; font-weight: normal; color: #000; cursor: default; padding: 2px 20px; ";
-			this.elems.text.innerHTML = this.text;
+			this.elems.text.innerHTML = sanitize(this.text)
 			this.elems.window.appendChild(this.elems.text);
 			
 		}
@@ -336,7 +343,7 @@ export default class JSAlert extends EventSource {
 			this.elems.textFields.style.cssText = "display: block; ";
 			this.elems.window.appendChild(this.elems.textFields);
 			
-			// Add each button
+			// Add each text field
 			this.textFields.forEach((b, idx) => {
 				
 				b.elem = document.createElement("input");
